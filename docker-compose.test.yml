@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  test:
+    image: codeforpoznan/pah-fm-e2e-test
+    volumes:
+      - ./e2e/output:/output
+      - ./e2e/tests:/tests
+    depends_on:
+      - backend
+      - frontend
+      - db
+      - webserver
+    command: bash docker-entrypoint.sh
+
