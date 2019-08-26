@@ -13,15 +13,16 @@ stop:  ## Stop all containers
 build:  ## Build backend & frontend containers
 	make build-backend
 	make build-frontend
+	make build-e2e-test
 
 remove:  ## Stop and remove backend & frontend containers
 	make remove-backend
 	make remove-frontend
+	make remove-e2e-test
 
 rebuild:  ## Rebuid application
 	docker-compose down
-	make remove-backend
-	make remove-frontend
+	make remove-e2e-test
 	make build
 	make start
 
@@ -36,8 +37,8 @@ lint:   ## Run linters
 	make lint-frontend
 	make lint-backend
 
-test:  ## Run tests
-	make test-backend
+e2e:  ## Run e2e tests
+	make e2e-backend
 
 manage:  ## Use manage.py, i.e make manage CMD=collectstatic
 	docker-compose run --rm --no-deps backend python3 manage.py ${CMD}
@@ -50,8 +51,17 @@ build-frontend:  ## Build frontend container
 	docker-compose stop frontend || true
 	docker build --tag codeforpoznan/pah-fm-frontend frontend
 
+build-e2e-test:  ## Build frontend container
+# 	docker-compose stop test || true
+	docker build --tag codeforpoznan/pah-fm-e2e-test e2e
+
 remove-backend:  ## Stop and remove backend container
 	docker-compose rm -v --stop --force backend
+
+remove-e2e-test:  ## Stop and remove backend container
+	echo "hello"
+# 	docker rmi --force $(docker images -q test | uniq)
+
 
 remove-frontend:  ## Stop and remove frontend container
 	docker-compose rm -v --stop --force frontend
@@ -99,3 +109,6 @@ checkout-pr:  ## Checkout to Pull Request, i.e. make checkout-pr PR=150
 
 	git fetch upstream pull/${PR}/head:${PR}
 	make checkout BRANCH=${PR}
+
+run-e2e-test:
+	docker-compose -f docker-compose.yml -f docker-compose.test.yml up --exit-code-from test --abort-on-container-exit
